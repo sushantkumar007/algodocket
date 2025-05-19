@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  check,
+  getCurrentUser,
   login,
   logout,
   register,
@@ -12,6 +12,6 @@ const userRoutes = Router();
 userRoutes.route("/register").post(register);
 userRoutes.route("/login").post(login);
 userRoutes.route("/logout").get(isAuthenticated, logout);
-userRoutes.route("/check").get(isAuthenticated, check);
+userRoutes.route("/me").get(isAuthenticated, getCurrentUser);
 
 export default userRoutes;
