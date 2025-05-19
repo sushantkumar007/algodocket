@@ -5,6 +5,15 @@ class ApiResponse {
     this.message = message;
     this.data = data;
   }
+
+  toJSON() {
+    return {
+      status: this.status,
+      success: this.success,
+      message: this.message,
+      data: this.data,
+    };
+  }
 }
 
 export { ApiResponse };
