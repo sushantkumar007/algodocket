@@ -25,6 +25,17 @@ enum Difficulty {
   HARD
 }
 
+enum TestStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TestResultStatus {
+  PASSED
+  FAILD
+  NOT_SUBMITED
+}
+
 model User {
   id                      String    @id @default(uuid())
   name                    String
@@ -44,6 +55,8 @@ model User {
   submission    Submission[]
   problemSolved ProblemSolved[]
   playlists     Playlist[]
+  tests         Test[]
+  testResults   UserTestResult[]
 }
 
 model Problem {
@@ -67,6 +80,7 @@ model Problem {
   submission        Submission[]
   solvedBy          ProblemSolved[]
   problemsPlaylists ProblemInPlaylist[]
+  tests             Test[]
 }
 
 model Submission {
@@ -85,9 +99,11 @@ model Submission {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem   Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  testCases TestCaseResult[]
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem          Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  testCases        TestCaseResult[]
+  userTestResultId String?          @unique
+  userTestResult   UserTestResult?  @relation("UserTestResultSubmission", fields: [userTestResultId], references: [id], onDelete: Cascade)
 }
 
 model TestCaseResult {
@@ -105,7 +121,9 @@ model TestCaseResult {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission       Submission      @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  userTestResultId String?
+  userTestResult   UserTestResult? @relation(fields: [userTestResultId], references: [id], onDelete: Cascade)
 
   @@index([submissionId])
 }
@@ -148,4 +166,38 @@ model ProblemInPlaylist {
   problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@unique([playListId, problemId])
+}
+
+model Test {
+  id          String     @id @default(uuid())
+  userId      String
+  problemId   String
+  name        String
+  description String
+  status      TestStatus @default(IN_PROGRESS)
+  starttedAt  DateTime
+  completedAt DateTime
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  results UserTestResult[]
+}
+
+model UserTestResult {
+  id          String           @id @default(uuid())
+  testId      String
+  candidateId String
+  isSubmited  Boolean          @default(false)
+  status      TestResultStatus @default(NOT_SUBMITED)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  test       Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
+  candidate  User        @relation(fields: [candidateId], references: [id])
+  submission Submission? @relation("UserTestResultSubmission")
+  testCases TestCaseResult[]
+
+  @@unique([testId, candidateId])
 }
