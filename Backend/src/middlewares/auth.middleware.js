@@ -56,7 +56,6 @@ const isAuthenticated = async (req, res, next) => {
 
       try {
         const user = await getUser(decoded.id);
-        console.log(`isAuth :: user ${user.refreshToken}`);
 
         if (refreshToken !== user.refreshToken) {
           return res
@@ -96,7 +95,7 @@ const isAuthenticated = async (req, res, next) => {
   }
 
   res
-    .status(err.status)
+    .status(401)
     .json(new ApiError(401, "Not authenticated. Please log in"));
 };
 
@@ -114,16 +113,18 @@ const isAdmin = async (req, res, next) => {
     });
 
     if (!user || user.role !== "ADMIN") {
-      return res.status(403).json({
-        message:
-          "Forbidden - You do not have permission to access this resource",
-      });
+      return res
+        .status(403)
+        .json(
+          new ApiError(
+            403,
+            "Forbidden - You do not have permission to access this resource",
+          ),
+        );
     }
     next();
   } catch (error) {
-    res.status(500).json({
-      message: "Error checking admin role",
-    });
+    res.status(500).json(new ApiError(500, "Internal Error"));
   }
 };
 
