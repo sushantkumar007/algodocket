@@ -165,7 +165,8 @@ exports.Prisma.SubmissionScalarFieldEnum = {
   memory: 'memory',
   time: 'time',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  userTestResultId: 'userTestResultId'
 };
 
 exports.Prisma.TestCaseResultScalarFieldEnum = {
@@ -181,7 +182,8 @@ exports.Prisma.TestCaseResultScalarFieldEnum = {
   memory: 'memory',
   time: 'time',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  userTestResultId: 'userTestResultId'
 };
 
 exports.Prisma.ProblemSolvedScalarFieldEnum = {
@@ -205,6 +207,29 @@ exports.Prisma.ProblemInPlaylistScalarFieldEnum = {
   id: 'id',
   playListId: 'playListId',
   problemId: 'problemId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TestScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  problemId: 'problemId',
+  name: 'name',
+  description: 'description',
+  status: 'status',
+  starttedAt: 'starttedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserTestResultScalarFieldEnum = {
+  id: 'id',
+  testId: 'testId',
+  candidateId: 'candidateId',
+  isSubmited: 'isSubmited',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -244,6 +269,17 @@ exports.Difficulty = exports.$Enums.Difficulty = {
   HARD: 'HARD'
 };
 
+exports.TestStatus = exports.$Enums.TestStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.TestResultStatus = exports.$Enums.TestResultStatus = {
+  PASSED: 'PASSED',
+  FAILD: 'FAILD',
+  NOT_SUBMITED: 'NOT_SUBMITED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Problem: 'Problem',
@@ -251,7 +287,9 @@ exports.Prisma.ModelName = {
   TestCaseResult: 'TestCaseResult',
   ProblemSolved: 'ProblemSolved',
   Playlist: 'Playlist',
-  ProblemInPlaylist: 'ProblemInPlaylist'
+  ProblemInPlaylist: 'ProblemInPlaylist',
+  Test: 'Test',
+  UserTestResult: 'UserTestResult'
 };
 
 /**
