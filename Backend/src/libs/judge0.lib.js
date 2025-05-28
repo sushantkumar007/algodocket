@@ -5,6 +5,7 @@ const getJudge0LanguageId = (language) => {
     PYTHON: 71,
     JAVA: 62,
     JAVASCRIPT: 63,
+    CPP: 54
   };
 
   return languageMap[language.toUpperCase()];
@@ -35,7 +36,6 @@ const pollBatchResults = async (tokens) => {
       (r) => r.status.id !== 1 && r.status.id !== 2,
     );
     
-    console.log(isAllDone);
     if (isAllDone) return results;
     await sleep(1000);
   }
@@ -46,6 +46,7 @@ const getLanguageName = (language_id) => {
     62: "Java",
     63: "JavaScript",
     71: "Python",
+    54: "CPP"
   };
 
   return LANGUAGE_NAMES[language_id] || "Unknown";
