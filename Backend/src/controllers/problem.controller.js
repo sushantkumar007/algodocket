@@ -52,7 +52,7 @@ const createProblem = asyncHandler(async (req, res) => {
 
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
-
+      
       if (result.status.id !== 3) {
         return res
           .status(400)
