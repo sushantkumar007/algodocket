@@ -6,6 +6,7 @@ import { useActions } from "../store/useAction";
 import AddToPlaylistModal from "./AddToPlaylist";
 import CreatePlaylistModal from "./CreatePlaylistModal";
 import { usePlaylistStore } from "../store/usePlaylistStore";
+import { useProblemStore } from "../store/useProblemStore";
 
 
 const ProblemsTable = ({ problems }) => {
@@ -19,7 +20,8 @@ const ProblemsTable = ({ problems }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
   const [selectedProblemId, setSelectedProblemId] = useState(null);
-
+  const { getAllProblems } = useProblemStore();
+    
   // Extract all unique tags from problems
   const allTags = useMemo(() => {
     if (!Array.isArray(problems)) return [];
@@ -46,7 +48,7 @@ const ProblemsTable = ({ problems }) => {
   }, [problems, search, difficulty, selectedTag]);
 
   // Pagination logic
-  const itemsPerPage = 5;
+  const itemsPerPage = 50;
   const totalPages = Math.ceil(filteredProblems.length / itemsPerPage);
   const paginatedProblems = useMemo(() => {
     return filteredProblems.slice(
@@ -57,6 +59,7 @@ const ProblemsTable = ({ problems }) => {
 
   const handleDelete = (id) => {
     onDeleteProblem(id);
+    getAllProblems();
   };
 
   const handleCreatePlaylist = async (data) => {
@@ -69,7 +72,7 @@ const ProblemsTable = ({ problems }) => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-10">
+    <div className="w-full bg-[#060A14] max-w-6xl mx-auto mt-10">
       {/* Header with Create Playlist Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Problems</h2>
@@ -142,7 +145,7 @@ const ProblemsTable = ({ problems }) => {
                         type="checkbox"
                         checked={isSolved}
                         readOnly
-                        className="checkbox checkbox-sm"
+                        className={`checkbox checkbox-sm ${isSolved ? "text-green-400": ""}`}
                       />
                     </td>
                     <td>
