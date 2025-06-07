@@ -39,6 +39,7 @@ const LoginPage = () => {
   const onSubmit = async (data)=>{
     try {
       await login(data)
+      console.log("authUser", authUser)
       if (authUser) {
         navigate("/")
       }
