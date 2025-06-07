@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 export const useProblemStore = create((set) => ({
   problems: [],
   problem: null,
+  error: null,
   solvedProblems: [],
   isProblemsLoading: false,
   isProblemLoading: false,
@@ -12,13 +13,11 @@ export const useProblemStore = create((set) => ({
   getAllProblems: async () => {
     try {
       set({ isProblemsLoading: true });
-
       const res = await axiosInstance.get("/problems/get-all-problems");
 
       set({ problems: res.data.data.problems });
     } catch (error) {
-      console.log("Error getting all problems", error);
-      toast.error("Error in getting problems");
+      set({ error })
     } finally {
       set({ isProblemsLoading: false });
     }
@@ -27,15 +26,11 @@ export const useProblemStore = create((set) => ({
   getProblemById: async (id) => {
     try {
       set({ isProblemLoading: true });
-
       const res = await axiosInstance.get(`/problems/get-problem/${id}`);
 
       set({ problem: res.data.data.problem });
-    
-      toast.success(res.data.message);
     } catch (error) {
-      console.log("Error getting all problems", error);
-      toast.error("Error in getting problems");
+      set({ error })
     } finally {
       set({ isProblemLoading: false });
     }
@@ -47,8 +42,7 @@ export const useProblemStore = create((set) => ({
 
       set({ solvedProblems: res.data.data.problems });
     } catch (error) {
-      console.log("Error getting solved problems", error);
-      toast.error("Error getting solved problems");
+      set({ error })
     }
   }
 
