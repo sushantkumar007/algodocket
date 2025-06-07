@@ -1,93 +1,149 @@
-import React from "react"
+import React, { useEffect } from "react";
 import { User, Code, LogOut } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Link } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 
+const Navbar = () => {
+  const { authUser } = useAuthStore();
+  const navigate = useNavigate();
+  
+  const navItems = [
+    {
+      name: "Home",
+      path: "/",
+      active: true,
+    },
+    {
+      name: "Problems",
+      path: "/problems",
+      active: true,
+    },
+    {
+      name: "Tests",
+      path: "/tests",
+      active: false,
+    },
+    {},
+  ];
 
-
-const Navbar = ()=>{
-
-    const {authUser} = useAuthStore()
-
-    console.log("AUTH_USER",authUser)
-
-    return (
-     <nav className="sticky top-0 z-50 w-full py-5">
-      <div className="flex w-full justify-between mx-auto max-w-4xl bg-black/15 shadow-lg shadow-neutral-600/5 backdrop-blur-lg border border-gray-200/10 p-4 rounded-2xl">
+  return (
+    <nav className="w-full fixed bg-[#060A14] z-50">
+      <div className="flex w-full justify-between mx-auto py-4 px-14">
+        {/* Navbar - left */}
         {/* Logo Section */}
-        <Link to="/" className="flex items-center gap-3 cursor-pointer">
-          <img src="/leetlab.svg" className="h-18 w-18 bg-primary/20 text-primary border-none px-2 py-2 rounded-full" />
+        <Link to="/" className="w-1/4 flex items-center gap-3 cursor-pointer">
+          <img
+            src="src/assets/Logo.png"
+            className="h-10 w-10 bg-primary/20 text-primary border-none rounded-full"
+          />
           <span className="text-lg md:text-2xl font-bold tracking-tight text-white hidden md:block">
-          Leetlab 
+            Algodocket
           </span>
         </Link>
 
-        {/* User Profile and Dropdown */}
-        <div className="flex items-center gap-8">
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar flex flex-row ">
-              <div className="w-10 rounded-full ">
-                <img
-                  src={
-                    authUser?.image ||
-                    "https://avatar.iran.liara.run/public/boy"
-                  }
-                  alt="User Avatar"
-                  className="object-cover"
-                />
-              </div>
-           
-            </label>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 space-y-3"
-            >
-              {/* Admin Option */}
-             
-
-              {/* Common Options */}
-              <li>
-                <p className="text-base font-semibold">
-                 
-                  {authUser?.name}
-
-                </p>
-                <hr className="border-gray-200/10" />
-              </li>
-              <li>
-                <Link
-                  to="/profile"
-                  className="hover:bg-primary hover:text-white text-base font-semibold"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  My Profile
-                </Link>
-              </li>
-              {authUser?.role === "ADMIN" && (
-                <li>
-                  <Link
-                    to="/add-problem"
-                    className="hover:bg-primary hover:text-white text-base font-semibold"
+        {/* Navbar - right */}
+        <div className="w-3/4 flex justify-between">
+          <ul className="flex justify-start items-center">
+            {navItems.map((item) =>
+              item.active ? (
+                <li key={item.name}>
+                  <NavLink
+                    to={item.path}
+                    className={({isActive}) => `inline-bock mx-4 px-2 duration-200 md:text-lg md:font-semibold hover:text-[#164E63] cursor-pointer ${isActive ? "text-[#0B645D]" : "text-[#F1F6F9]"}`}
                   >
-                    <Code className="w-4 h-4 mr-1" />
-                    Add Problem
-                  </Link>
+                    {item.name}
+                  </NavLink>
+                </li>
+              ) : null
+            )}
+          </ul>
+
+          {!authUser ? (
+            <ul className="flex justify-center items-center">
+              {authUser ? null : (
+                <li>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="text-[#F1F6F9] border border-[#0B645D] hover:bg-[#0B645D] md:font-bold mx-6 px-4 py-2 rounded-md"
+                  >
+                    Login
+                  </button>
                 </li>
               )}
-              <li>
-                <LogoutButton className="hover:bg-primary hover:text-white">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </LogoutButton>
-              </li>
+              {authUser ? null : (
+                <li>
+                  <button
+                    onClick={() => navigate("/signup")}
+                    className="text-[#F1F6F9] bg-[#0B645D] md:font-bold px-4 py-2 rounded-md hover:bg-[#F1F6F9] hover:text-[#060A14]"
+                  >
+                    Sign up
+                  </button>
+                </li>
+              )}
             </ul>
-          </div>
+          ) : (
+            <div className="flex items-center gap-8">
+              {/* User Profile and Dropdown */}
+              <div className="dropdown dropdown-end">
+                <label
+                  tabIndex={0}
+                  className="btn btn-ghost btn-circle avatar flex flex-row "
+                >
+                  <div className="w-10 rounded-full ">
+                    <img
+                      src={
+                        authUser?.image ||
+                        "https://avatar.iran.liara.run/public/boy"
+                      }
+                      alt="User Avatar"
+                      className="object-cover"
+                    />
+                  </div>
+                </label>
+                <ul
+                  tabIndex={0}
+                  className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 space-y-3"
+                >
+                  {/* Common Options */}
+                  <li>
+                    <p className="text-base font-semibold">{authUser?.name}</p>
+                    <hr className="border-gray-200/10" />
+                  </li>
+                  <li>
+                    <Link
+                      to="/profile"
+                      className="hover:bg-primary hover:text-white text-base font-semibold"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      My Profile
+                    </Link>
+                  </li>
+                  {authUser?.role === "ADMIN" && (
+                    <li>
+                      <Link
+                        to="/add-problem"
+                        className="hover:bg-primary hover:text-white text-base font-semibold"
+                      >
+                        <Code className="w-4 h-4 mr-1" />
+                        Add Problem
+                      </Link>
+                    </li>
+                  )}
+                  <li>
+                    <LogoutButton className="hover:bg-primary hover:text-white">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </LogoutButton>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>
-    )
-}
-
+  );
+};
 
 export default Navbar;
