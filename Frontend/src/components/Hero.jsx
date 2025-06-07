@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import imageOne from "/src/assets/imgOne.svg"
 
 function Hero() {
     const navigate = useNavigate()
@@ -25,7 +26,7 @@ function Hero() {
       </div>
       <div className="w-1/2 pt-24 flex justify-end">
         <img
-          src="/src\assets\imgOne.svg"
+          src={imageOne}
           alt="404 image"
           className="max-w-[550px]"
         />
