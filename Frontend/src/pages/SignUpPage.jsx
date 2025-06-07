@@ -22,10 +22,9 @@ const SignUpSchema = z.object({
 })
 
 const SignUpPage = () => {
-
   const [showPassword , setShowPassword] = useState(false);
-
-  const {signup , isSigninUp} = useAuthStore()
+  const [error, setError] = useState("")
+  const {signup , isSigninUp } = useAuthStore()
 
   const {
     register,
@@ -38,9 +37,8 @@ const SignUpPage = () => {
   const onSubmit = async (data)=>{
    try {
     await signup(data)
-    console.log("signup data" , data)
    } catch (error) {
-     console.error("SignUp failed:", error);
+     setError(error.message)
    }
   }
 
@@ -61,8 +59,8 @@ const SignUpPage = () => {
           </div>
 
           {/* Form */}
+            {error && <p className="text-red-600 text-center">{error}</p>}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            
             {/* name */}
             <div className="form-control">
               <label className="label">
