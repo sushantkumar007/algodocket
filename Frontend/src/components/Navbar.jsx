@@ -6,14 +6,8 @@ import LogoutButton from "./LogoutButton";
 import Logo from "/src/assets/Logo.png"
 
 const Navbar = () => {
-  const { authUser, checkAuth } = useAuthStore();
-  const navigate = useNavigate();
-
-  async function checkAuthStatus(){
-    await checkAuth()
-  }
-
-  checkAuthStatus()
+  const { authUser } = useAuthStore();
+  const navigate = useNavigate()
   
   const navItems = [
     {
