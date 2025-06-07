@@ -1,7 +1,7 @@
 import React , {useState} from 'react'
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Code,
   Eye,
@@ -23,9 +23,10 @@ const LoginSchema = z.object({
 })
 
 const LoginPage = () => {
-
-  const {isLoggingIn , login} = useAuthStore()
+  const {isLoggingIn , login, authUser} = useAuthStore()
   const [showPassword , setShowPassword] = useState(false);
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
 
   const {
     register ,
@@ -38,9 +39,11 @@ const LoginPage = () => {
   const onSubmit = async (data)=>{
     try {
       await login(data)
-      
+      if (authUser) {
+        navigate("/")
+      }
     } catch (error) {
-      console.error("Signup failed" , error)
+      setError(error.message)
     }
   }
 
@@ -57,12 +60,12 @@ const LoginPage = () => {
               </div>
               <h1 className="text-2xl font-bold mt-2">Welcome Back</h1>
               <p className="text-base-content/60">Login to your account</p>
+          {error && <p className="text-red-600 text-center">{error}</p>}
             </div>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            
            
           
 
