@@ -3,6 +3,7 @@ import { User, Code, LogOut } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
+import Logo from "/src/assets/Logo.png"
 
 const Navbar = () => {
   const { authUser } = useAuthStore();
@@ -34,7 +35,7 @@ const Navbar = () => {
         {/* Logo Section */}
         <Link to="/" className="w-1/4 flex items-center gap-3 cursor-pointer">
           <img
-            src="src/assets/Logo.png"
+            src={Logo}
             className="h-10 w-10 bg-primary/20 text-primary border-none rounded-full"
           />
           <span className="text-lg md:text-2xl font-bold tracking-tight text-white hidden md:block">
