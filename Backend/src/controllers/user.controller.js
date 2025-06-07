@@ -44,7 +44,7 @@ const register = asyncHandler(async (req, res) => {
     return res.status(400).json(new ApiError(400, "failed to register user"));
   }
 
-  const emailVerificationLink = `${process.env.BASE_URL}:${process.env.PORT}/api/v1/users/verify/${token}`;
+  const emailVerificationLink = `${process.env.BASE_URL}/email-verification/${token}`;
 
   const { html, text } = emailVerificationBody(name, emailVerificationLink);
   const sendMailOptions = {
@@ -105,7 +105,14 @@ const login = asyncHandler(async (req, res) => {
 
   res.cookie("accessToken", accessToken, cookieOptions);
   res.cookie("refreshToken", refreshToken, cookieOptions);
-  res.status(200).json(new ApiResponse(200, true, "Login successful"));
+  res.status(200).json(new ApiResponse(200, true, "Login successful", {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  }));
 });
 
 const logout = asyncHandler(async (req, res) => {
@@ -144,6 +151,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const verify = asyncHandler(async (req, res) => {
   const { token: emailVerificationToken } = req.params;
+  console.log("user controller :: verify :: token :: ", emailVerificationToken)
 
   const user = await db.user.findFirst({
     where: {
@@ -152,6 +160,7 @@ const verify = asyncHandler(async (req, res) => {
     select: {
       id: true,
       email: true,
+      name: true
     },
   });
 
@@ -259,7 +268,7 @@ const resetPasswordRequest = asyncHandler(async (req, res) => {
     },
   });
 
-  const resetPasswordLink = `${process.env.BASE_URL}:${process.env.PORT}/api/v1/users/reset-password/${token}`;
+  const resetPasswordLink = `${process.env.BASE_URL}/reset-password/${token}`;
 
   const { html, text } = resetPasswordBody(user.name, resetPasswordLink);
   const sendMailOptions = {
@@ -315,9 +324,6 @@ const resetPassword = asyncHandler(async (req, res) => {
 const updatePassword = asyncHandler(async (req, res) => {
   const { id: userId } = req.user;
   const { oldPassword, newPassword } = req.body;
-  console.log("updatePassword :: userId ", userId)
-  console.log("updatePassword :: oldPassword ", oldPassword)
-  console.log("updatePassword :: newPassword ", newPassword)
   
   const user = await db.user.findFirst({
     where: { id: userId },
@@ -326,10 +332,8 @@ const updatePassword = asyncHandler(async (req, res) => {
       password: true,
     },
   });
-  console.log("updatePassword :: user ", user)
   
   const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
-  console.log("updatePassword :: isPasswordMatch ", isPasswordMatch)
   
   if (!isPasswordMatch) {
     return res
@@ -368,9 +372,3 @@ export {
   resetPassword,
   updatePassword,
 };
-
-// console.log(`Testcase #${i + 1}`);
-// console.log(`input ${stdin[i]}`);
-// console.log(`Expected Output for testcase ${expected_output}`);
-// console.log(`Actual output ${stdout}`);
-// console.log(`Matched: ${passed
