@@ -56,11 +56,8 @@ export const useAuthStore = create((set) => ({
     try {
       const res = await axiosInstance.get(`/users/verify/${token}`)
       const data = res.data
-      console.log("useAuthStore :: verifyEmail :: ", res)
-      console.log("useAuthStore :: verifyEmail :: ", data)
       return data
     } catch (error) {
-      console.log("useAuthStore :: verifyEmail :: error", error)
       throw new Error(error.response.data.message)
     }
   },
