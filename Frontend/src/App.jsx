@@ -5,7 +5,16 @@ import { useAuthStore } from "./store/useAuthStore";
 import { Loader } from "lucide-react";
 import Layout from "./layout/Layout";
 import AdminRoute from "./components/AdminRoute";
-import { AddProblem, HomePage, LoginPage, ProblemPage, SignUpPage } from "./pages/index.js"
+import {
+  AddProblem,
+  HomePage,
+  LoginPage,
+  ProblemPage,
+  SignUpPage,
+  ProblemsListPage,
+  Profile,
+  EmailVerificationPage,
+} from "./pages/index.js";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -27,10 +36,24 @@ const App = () => {
       <Toaster />
       <Routes>
         <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
           <Route
-            index
-            element={authUser ? <HomePage /> : <Navigate to={"/login"} />}
+            path="/problems"
+            element={
+              authUser ? <ProblemsListPage /> : <Navigate to={"/login"} />
+            }
           />
+          <Route
+            path="/profile"
+            element={authUser ? <Profile /> : <Navigate to={"/login"} />}
+          />
+
+          <Route element={<AdminRoute />}>
+            <Route
+              path="/add-problem"
+              element={authUser ? <AddProblem /> : <Navigate to="/" />}
+            />
+          </Route>
         </Route>
 
         <Route
@@ -42,18 +65,14 @@ const App = () => {
           path="/signup"
           element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />}
         />
-
         <Route
           path="/problem/:id"
           element={authUser ? <ProblemPage /> : <Navigate to={"/login"} />}
         />
-
-        <Route element={<AdminRoute />}>
-          <Route
-            path="/add-problem"
-            element={authUser ? <AddProblem /> : <Navigate to="/" />}
-          />
-        </Route>
+        <Route
+          path="/email-verification/:token"
+          element={<EmailVerificationPage />}
+        />
       </Routes>
     </div>
   );
