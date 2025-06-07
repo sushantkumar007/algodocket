@@ -18,7 +18,6 @@ function HomePage() {
     <Container>
       <Hero />
       <Features />
-      <Counts />
         <Footer />
     </Container>
     </>
