@@ -57,10 +57,21 @@ const executeCode = asyncHandler(async (req, res) => {
       time: result.time ? `${result.time} s` : undefined,
     };
   });
+  const testCaseResults = detailedResults.map((result) => ({
+    // submissionId: submission.id,
+    testCase: result.testCase,
+    passed: result.passed,
+    stdout: result.stdout,
+    expected: result.expected,
+    stderr: result.stderr,
+    compileOutput: result.compile_output,
+    status: result.status,
+    memory: result.memory,
+    time: result.time,
+  }));
 
-  const submission = await db.submission.create({
-    data: {
-      userId,
+  const myData = {
+    userId,
       problemId,
       sourceCode: source_code,
       language: getLanguageName(language_id),
@@ -79,54 +90,12 @@ const executeCode = asyncHandler(async (req, res) => {
       time: detailedResults.some((r) => r.time)
         ? JSON.stringify(detailedResults.map((r) => r.time))
         : null,
-    },
-  });
-
-  if (allPassed) {
-    await db.problemSolved.upsert({
-      where: {
-        userId_problemId: {
-          userId,
-          problemId,
-        },
-      },
-      update: {},
-      create: {
-        userId,
-        problemId,
-      },
-    });
+      testCases: testCaseResults
   }
-
-  const testCaseResults = detailedResults.map((result) => ({
-    submissionId: submission.id,
-    testCase: result.testCase,
-    passed: result.passed,
-    stdout: result.stdout,
-    expected: result.expected,
-    stderr: result.stderr,
-    compileOutput: result.compile_output,
-    status: result.status,
-    memory: result.memory,
-    time: result.time,
-  }));
-
-  await db.testCaseResult.createMany({
-    data: testCaseResults,
-  });
-
-  const submissionWithTestCase = await db.submission.findUnique({
-    where: {
-      id: submission.id,
-    },
-    include: {
-      testCases: true,
-    },
-  });
 
   res.status(200).json(
     new ApiResponse(200, true, "Code Executed! Successfully", {
-      submission: submissionWithTestCase,
+      submission: myData,
       data,
     }),
   );
