@@ -39,10 +39,7 @@ const LoginPage = () => {
   const onSubmit = async (data)=>{
     try {
       await login(data)
-      console.log("authUser", authUser)
-      if (authUser) {
-        navigate("/")
-      }
+      navigate("/")
     } catch (error) {
       setError(error.message)
     }
