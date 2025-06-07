@@ -1,4 +1,5 @@
 import React from "react";
+import Logo from "/src/assets/Logo.png"
 
 function Footer() {
   return (
@@ -66,7 +67,7 @@ function Footer() {
       <footer className="footer sm:footer-horizontal text-neutral-content p-10">
         <aside>
           <img
-            src="src/assets/Logo.png"
+            src={Logo}
             className="h-30 w-30 bg-primary/20 text-primary border-none rounded-full"
           />
           <p className="">
