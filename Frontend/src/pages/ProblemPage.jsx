@@ -42,7 +42,7 @@ const ProblemPage = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [testcases, setTestCases] = useState([]);
 
-  const { submitCode, submission, isExecuting } = useExecutionStore();
+  const { submitCode, executeCode, submission, isExecuting } = useExecutionStore();
 
   useEffect(() => {
     getProblemById(id);
@@ -69,8 +69,6 @@ const ProblemPage = () => {
     }
   }, [activeTab, id]);
 
-  console.log("submission", submissions);
-
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
     setSelectedLanguage(lang);
@@ -84,6 +82,18 @@ const ProblemPage = () => {
       const stdin = problem.testcases.map((tc) => tc.input);
       const expected_outputs = problem.testcases.map((tc) => tc.output);
       submitCode(code, language_id, stdin, expected_outputs, id);
+    } catch (error) {
+      console.log("Error executing code", error);
+    }
+  };
+
+  const handleExecuteCode = (e) => {
+    e.preventDefault();
+    try {
+      const language_id = getLanguageId(selectedLanguage);
+      const stdin = problem.testcases.map((tc) => tc.input);
+      const expected_outputs = problem.testcases.map((tc) => tc.output);
+      executeCode(code, language_id, stdin, expected_outputs, id);
     } catch (error) {
       console.log("Error executing code", error);
     }
@@ -242,7 +252,7 @@ const ProblemPage = () => {
           >
             {Object.keys(problem.codeSnippets || {}).map((lang) => (
               <option key={lang} value={lang}>
-                {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                {lang == "CPP" ? "C++" : lang.charAt(0).toUpperCase() + lang.slice(1)}
               </option>
             ))}
           </select>
@@ -330,8 +340,8 @@ const ProblemPage = () => {
                     className={`btn btn-primary gap-2 ${
                       isExecuting ? "loading" : ""
                     }`}
-                    // onClick={handleRunCode}
-                    // disabled={isExecuting}
+                    onClick={handleExecuteCode}
+                    disabled={isExecuting}
                   >
                     {!isExecuting && <Play className="w-4 h-4" />}
                     Run Code
@@ -385,3 +395,136 @@ const ProblemPage = () => {
 };
 
 export default ProblemPage;
+
+// {
+//   "title": "Minimum Window Substring",
+//   "description": "Given two strings `s` and `t` of lengths `m` and `n` respectively, return the minimum window substring of `s` such that every character in `t` (including duplicates) is included in the window. If there is no such substring, return an empty string `\"\"`.",
+//   "difficulty": "HARD",
+//   "tags": ["hash-table", "string", "sliding-window"],
+//   "examples": {
+//     "PYTHON": {
+//       "input": "ADOBECODEBANC\nABC",
+//       "output": "BANC",
+//       "explanation": "The minimum window substring is 'BANC' which contains all the characters of 'ABC'."
+//     },
+//     "JAVASCRIPT": {
+//       "input": "a\nb",
+//       "output": "",
+//       "explanation": "There is no window in 'a' that contains 'b'."
+//     },
+//     "CPP": {
+//       "input": "aa\naa",
+//       "output": "aa",
+//       "explanation": "The window is the entire string itself."
+//     }
+//   },
+//   "constraints": "1 <= s.length, t.length <= 10^5\ns and t consist of uppercase and lowercase English letters.",
+//   "testcases": [
+//     { "input": "ADOBECODEBANC\nABC", "output": "BANC" },
+//     { "input": "a\nb", "output": "" },
+//     { "input": "aa\naa", "output": "aa" },
+//     { "input": "aaflslflsldkabcabcaa\nabc", "output": "abc" },
+//     { "input": "ab\nb", "output": "b" }
+//   ],
+//   "codeSnippets": {
+//     "PYTHON": "import sys\ns, t = sys.stdin.read().strip().split('\\n')\nfrom collections import Counter\n\ndef min_window(s, t):\n    if not t or not s:\n        return \"\"\n    t_count = Counter(t)\n    window_count = {}\n    have, need = 0, len(t_count)\n    res, res_len = [-1, -1], float('inf')\n    l = 0\n    for r, c in enumerate(s):\n        window_count[c] = window_count.get(c, 0) + 1\n        if c in t_count and window_count[c] == t_count[c]:\n            have += 1\n        while have == need:\n            if (r - l + 1) < res_len:\n                res = [l, r]\n                res_len = r - l + 1\n            window_count[s[l]] -= 1\n            if s[l] in t_count and window_count[s[l]] < t_count[s[l]]:\n                have -= 1\n            l += 1\n    l, r = res\n    return s[l:r+1] if res_len != float('inf') else \"\"\n\nprint(min_window(s, t))",
+//     "JAVASCRIPT": "const fs = require('fs');\nconst [s, t] = fs.readFileSync(0, 'utf-8').trim().split('\\n');\n\nfunction minWindow(s, t) {\n    if (t === \"\" || s === \"\") return \"\";\n    const tCount = {};\n    for (let c of t) tCount[c] = (tCount[c] || 0) + 1;\n    let have = 0, need = Object.keys(tCount).length;\n    const window = {};\n    let res = [-1, -1], resLen = Infinity;\n    let l = 0;\n    for (let r = 0; r < s.length; r++) {\n        let c = s[r];\n        window[c] = (window[c] || 0) + 1;\n        if (c in tCount && window[c] === tCount[c]) have++;\n        while (have === need) {\n            if ((r - l + 1) < resLen) {\n                res = [l, r];\n                resLen = r - l + 1;\n            }\n            window[s[l]]--;\n            if (s[l] in tCount && window[s[l]] < tCount[s[l]]) have--;\n            l++;\n        }\n    }\n    const [start, end] = res;\n    return resLen === Infinity ? \"\" : s.slice(start, end + 1);\n}\n\nconsole.log(minWindow(s, t));",
+//     "JAVA": "import java.util.*;\n\npublic class Main {\n    public static String minWindow(String s, String t) {\n        if (s.length() == 0 || t.length() == 0) return \"\";\n        Map<Character, Integer> tCount = new HashMap<>();\n        for (char c : t.toCharArray())\n            tCount.put(c, tCount.getOrDefault(c, 0) + 1);\n        Map<Character, Integer> window = new HashMap<>();\n        int have = 0, need = tCount.size();\n        int l = 0, resLen = Integer.MAX_VALUE, resL = 0;\n        for (int r = 0; r < s.length(); r++) {\n            char c = s.charAt(r);\n            window.put(c, window.getOrDefault(c, 0) + 1);\n            if (tCount.containsKey(c) && window.get(c).intValue() == tCount.get(c).intValue())\n                have++;\n            while (have == need) {\n                if ((r - l + 1) < resLen) {\n                    resL = l;\n                    resLen = r - l + 1;\n                }\n                char left = s.charAt(l);\n                window.put(left, window.get(left) - 1);\n                if (tCount.containsKey(left) && window.get(left).intValue() < tCount.get(left).intValue())\n                    have--;\n                l++;\n            }\n        }\n        return resLen == Integer.MAX_VALUE ? \"\" : s.substring(resL, resL + resLen);\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        String t = sc.nextLine();\n        System.out.println(minWindow(s, t));\n    }\n}",
+//     "CPP": "#include <iostream>\n#include <string>\n#include <unordered_map>\n#include <climits>\nusing namespace std;\n\nstring minWindow(string s, string t) {\n    if (t.empty() || s.empty()) return \"\";\n    unordered_map<char, int> tCount, window;\n    for (char c : t) tCount[c]++;\n    int have = 0, need = tCount.size();\n    int resLen = INT_MAX, resL = 0;\n    int l = 0;\n    for (int r = 0; r < s.size(); ++r) {\n        window[s[r]]++;\n        if (tCount.count(s[r]) && window[s[r]] == tCount[s[r]])\n            have++;\n        while (have == need) {\n            if (r - l + 1 < resLen) {\n                resL = l;\n                resLen = r - l + 1;\n            }\n            window[s[l]]--;\n            if (tCount.count(s[l]) && window[s[l]] < tCount[s[l]])\n                have--;\n            l++;\n        }\n    }\n    return resLen == INT_MAX ? \"\" : s.substr(resL, resLen);\n}\n\nint main() {\n    string s, t;\n    getline(cin, s);\n    getline(cin, t);\n    cout << minWindow(s, t) << endl;\n    return 0;\n}"
+//   },
+//   "referenceSolutions": {
+//     "PYTHON": "import sys\ns, t = sys.stdin.read().strip().split('\\n')\nfrom collections import Counter\n\ndef min_window(s, t):\n    if not t or not s:\n        return \"\"\n    t_count = Counter(t)\n    window_count = {}\n    have, need = 0, len(t_count)\n    res, res_len = [-1, -1], float('inf')\n    l = 0\n    for r, c in enumerate(s):\n        window_count[c] = window_count.get(c, 0) + 1\n        if c in t_count and window_count[c] == t_count[c]:\n            have += 1\n        while have == need:\n            if (r - l + 1) < res_len:\n                res = [l, r]\n                res_len = r - l + 1\n            window_count[s[l]] -= 1\n            if s[l] in t_count and window_count[s[l]] < t_count[s[l]]:\n                have -= 1\n            l += 1\n    l, r = res\n    return s[l:r+1] if res_len != float('inf') else \"\"\n\nprint(min_window(s, t))"
+//   },
+//   "hints": "Use a sliding window approach with two pointers. Expand the window until it contains all characters in t, then shrink it to find the minimum."
+// }
+
+
+// {
+//   "title": "Longest Consecutive Sequence",
+//   "description": "Given an unsorted array of integers `nums`, return the length of the longest consecutive elements sequence.\n\nYou must write an algorithm that runs in O(n) time.",
+//   "difficulty": "HARD",
+//   "tags": ["array", "union-find", "hash-table"],
+//   "examples": {
+//     "PYTHON": {
+//       "input": "100\n4\n200\n1\n3\n2",
+//       "output": "4",
+//       "explanation": "The longest consecutive sequence is [1, 2, 3, 4]. Length = 4."
+//     },
+//     "JAVASCRIPT": {
+//       "input": "0\n3\n7\n2\n5\n8\n4\n6\n0\n1",
+//       "output": "9",
+//       "explanation": "The longest consecutive sequence is [0, 1, 2, 3, 4, 5, 6, 7, 8]. Length = 9."
+//     },
+//     "CPP": {
+//       "input": "9\n1\n4\n7\n3\n2\n6\n0\n5\n8",
+//       "output": "10",
+//       "explanation": "All numbers from 0 to 9 form the sequence."
+//     }
+//   },
+//   "constraints": "0 <= nums.length <= 10^5\n-10^9 <= nums[i] <= 10^9",
+//   "testcases": [
+//     { "input": "100\n4\n200\n1\n3\n2", "output": "4" },
+//     { "input": "0\n3\n7\n2\n5\n8\n4\n6\n0\n1", "output": "9" },
+//     { "input": "9\n1\n4\n7\n3\n2\n6\n0\n5\n8", "output": "10" },
+//     { "input": "1\n9\n3\n10\n2\n20", "output": "3" },
+//     { "input": "", "output": "0" }
+//   ],
+//   "codeSnippets": {
+//     "PYTHON": "import sys\nnums = list(map(int, sys.stdin.read().strip().split('\\n')))\n\ndef longest_consecutive(nums):\n    num_set = set(nums)\n    longest = 0\n    for num in num_set:\n        if num - 1 not in num_set:\n            current = num\n            streak = 1\n            while current + 1 in num_set:\n                current += 1\n                streak += 1\n            longest = max(longest, streak)\n    return longest\n\nprint(str(longest_consecutive(nums)))",
+//     "JAVASCRIPT": "const fs = require('fs');\nconst nums = fs.readFileSync(0, 'utf-8').trim().split('\\n').map(Number);\n\nfunction longestConsecutive(nums) {\n    const set = new Set(nums);\n    let longest = 0;\n    for (let num of set) {\n        if (!set.has(num - 1)) {\n            let current = num;\n            let streak = 1;\n            while (set.has(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = Math.max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nconsole.log(longestConsecutive(nums));",
+//     "JAVA": "import java.util.*;\n\npublic class Main {\n    public static int longestConsecutive(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int num : nums) set.add(num);\n        int longest = 0;\n        for (int num : set) {\n            if (!set.contains(num - 1)) {\n                int current = num;\n                int streak = 1;\n                while (set.contains(current + 1)) {\n                    current++;\n                    streak++;\n                }\n                longest = Math.max(longest, streak);\n            }\n        }\n        return longest;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        List<Integer> nums = new ArrayList<>();\n        while (sc.hasNextLine()) {\n            String line = sc.nextLine();\n            if (line.equals(\"\")) break;\n            nums.add(Integer.parseInt(line));\n        }\n        int[] arr = nums.stream().mapToInt(i -> i).toArray();\n        System.out.println(longestConsecutive(arr));\n    }\n}",
+//     "CPP": "#include <iostream>\n#include <unordered_set>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint longestConsecutive(vector<int>& nums) {\n    unordered_set<int> num_set(nums.begin(), nums.end());\n    int longest = 0;\n    for (int num : num_set) {\n        if (!num_set.count(num - 1)) {\n            int current = num;\n            int streak = 1;\n            while (num_set.count(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nint main() {\n    string line;\n    vector<int> nums;\n    while (getline(cin, line) && !line.empty()) {\n        nums.push_back(stoi(line));\n    }\n    cout << longestConsecutive(nums) << endl;\n    return 0;\n}"
+//   },
+//   "referenceSolutions": {
+//     "PYTHON": "import sys\nnums = list(map(int, sys.stdin.read().strip().split('\\n')))\n\ndef longest_consecutive(nums):\n    num_set = set(nums)\n    longest = 0\n    for num in num_set:\n        if num - 1 not in num_set:\n            current = num\n            streak = 1\n            while current + 1 in num_set:\n                current += 1\n                streak += 1\n            longest = max(longest, streak)\n    return longest\n\nprint(str(longest_consecutive(nums)))",
+//     "JAVASCRIPT": "const fs = require('fs');\nconst nums = fs.readFileSync(0, 'utf-8').trim().split('\\n').map(Number);\n\nfunction longestConsecutive(nums) {\n    const set = new Set(nums);\n    let longest = 0;\n    for (let num of set) {\n        if (!set.has(num - 1)) {\n            let current = num;\n            let streak = 1;\n            while (set.has(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = Math.max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nconsole.log(longestConsecutive(nums));",
+//     "JAVA": "import java.util.*;\n\npublic class Main {\n    public static int longestConsecutive(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int num : nums) set.add(num);\n        int longest = 0;\n        for (int num : set) {\n            if (!set.contains(num - 1)) {\n                int current = num;\n                int streak = 1;\n                while (set.contains(current + 1)) {\n                    current++;\n                    streak++;\n                }\n                longest = Math.max(longest, streak);\n            }\n        }\n        return longest;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        List<Integer> nums = new ArrayList<>();\n        while (sc.hasNextLine()) {\n            String line = sc.nextLine();\n            if (line.equals(\"\")) break;\n            nums.add(Integer.parseInt(line));\n        }\n        int[] arr = nums.stream().mapToInt(i -> i).toArray();\n        System.out.println(longestConsecutive(arr));\n    }\n}",
+//     "CPP": "#include <iostream>\n#include <unordered_set>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint longestConsecutive(vector<int>& nums) {\n    unordered_set<int> num_set(nums.begin(), nums.end());\n    int longest = 0;\n    for (int num : num_set) {\n        if (!num_set.count(num - 1)) {\n            int current = num;\n            int streak = 1;\n            while (num_set.count(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nint main() {\n    string line;\n    vector<int> nums;\n    while (getline(cin, line) && !line.empty()) {\n        nums.push_back(stoi(line));\n    }\n    cout << longestConsecutive(nums) << endl;\n    return 0;\n}"
+//   },
+//   "hints": "Put all numbers into a set for O(1) lookups. Only start counting when the previous number doesn't exist."
+// }
+
+// {
+//   "title": "Longest Consecutive Sequence",
+//   "description": "Given an unsorted array of integers `nums`, return the length of the longest consecutive elements sequence.\n\nYou must write an algorithm that runs in O(n) time.",
+//   "difficulty": "HARD",
+//   "tags": ["array", "union-find", "hash-table"],
+//   "examples": {
+//     "PYTHON": {
+//       "input": "100\n4\n200\n1\n3\n2",
+//       "output": "4",
+//       "explanation": "The longest consecutive sequence is [1, 2, 3, 4]. Length = 4."
+//     },
+//     "JAVASCRIPT": {
+//       "input": "0\n3\n7\n2\n5\n8\n4\n6\n0\n1",
+//       "output": "9",
+//       "explanation": "The longest consecutive sequence is [0, 1, 2, 3, 4, 5, 6, 7, 8]. Length = 9."
+//     },
+//     "CPP": {
+//       "input": "9\n1\n4\n7\n3\n2\n6\n0\n5\n8",
+//       "output": "10",
+//       "explanation": "All numbers from 0 to 9 form the sequence."
+//     }
+//   },
+//   "constraints": "0 <= nums.length <= 10^5\n-10^9 <= nums[i] <= 10^9",
+//   "testcases": [
+//     { "input": "100\n4\n200\n1\n3\n2", "output": "4" },
+//     { "input": "0\n3\n7\n2\n5\n8\n4\n6\n0\n1", "output": "9" },
+//     { "input": "9\n1\n4\n7\n3\n2\n6\n0\n5\n8", "output": "10" },
+//     { "input": "1\n9\n3\n10\n2\n20", "output": "3" },
+//     { "input": "", "output": "0" }
+//   ],
+//   "codeSnippets": {
+//     "PYTHON": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nnums = list(map(int, lines)) if lines[0] != '' else []\n\ndef longest_consecutive(nums):\n    num_set = set(nums)\n    longest = 0\n    for num in num_set:\n        if num - 1 not in num_set:\n            current = num\n            streak = 1\n            while current + 1 in num_set:\n                current += 1\n                streak += 1\n            longest = max(longest, streak)\n    return longest\n\nprint(str(longest_consecutive(nums)))",
+//     "JAVASCRIPT": "const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim();\nconst nums = input ? input.split('\\n').map(Number) : [];\n\nfunction longestConsecutive(nums) {\n    const set = new Set(nums);\n    let longest = 0;\n    for (let num of set) {\n        if (!set.has(num - 1)) {\n            let current = num;\n            let streak = 1;\n            while (set.has(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = Math.max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nconsole.log(longestConsecutive(nums));",
+//     "JAVA": "import java.util.*;\n\npublic class Main {\n    public static int longestConsecutive(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int num : nums) set.add(num);\n        int longest = 0;\n        for (int num : set) {\n            if (!set.contains(num - 1)) {\n                int current = num;\n                int streak = 1;\n                while (set.contains(current + 1)) {\n                    current++;\n                    streak++;\n                }\n                longest = Math.max(longest, streak);\n            }\n        }\n        return longest;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        List<Integer> nums = new ArrayList<>();\n        while (sc.hasNextLine()) {\n            String line = sc.nextLine();\n            if (line.equals(\"\")) break;\n            nums.add(Integer.parseInt(line));\n        }\n        int[] arr = nums.stream().mapToInt(i -> i).toArray();\n        System.out.println(longestConsecutive(arr));\n    }\n}",
+//     "CPP": "#include <iostream>\n#include <unordered_set>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint longestConsecutive(vector<int>& nums) {\n    unordered_set<int> num_set(nums.begin(), nums.end());\n    int longest = 0;\n    for (int num : num_set) {\n        if (!num_set.count(num - 1)) {\n            int current = num;\n            int streak = 1;\n            while (num_set.count(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nint main() {\n    string line;\n    vector<int> nums;\n    while (getline(cin, line) && !line.empty()) {\n        nums.push_back(stoi(line));\n    }\n    cout << longestConsecutive(nums) << endl;\n    return 0;\n}"
+//   },
+//   "referenceSolutions": {
+//     "PYTHON": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nnums = list(map(int, lines)) if lines[0] != '' else []\n\ndef longest_consecutive(nums):\n    num_set = set(nums)\n    longest = 0\n    for num in num_set:\n        if num - 1 not in num_set:\n            current = num\n            streak = 1\n            while current + 1 in num_set:\n                current += 1\n                streak += 1\n            longest = max(longest, streak)\n    return longest\n\nprint(str(longest_consecutive(nums)))",
+//     "JAVASCRIPT": "const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim();\nconst nums = input ? input.split('\\n').map(Number) : [];\n\nfunction longestConsecutive(nums) {\n    const set = new Set(nums);\n    let longest = 0;\n    for (let num of set) {\n        if (!set.has(num - 1)) {\n            let current = num;\n            let streak = 1;\n            while (set.has(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = Math.max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nconsole.log(longestConsecutive(nums));",
+//     "JAVA": "import java.util.*;\n\npublic class Main {\n    public static int longestConsecutive(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int num : nums) set.add(num);\n        int longest = 0;\n        for (int num : set) {\n            if (!set.contains(num - 1)) {\n                int current = num;\n                int streak = 1;\n                while (set.contains(current + 1)) {\n                    current++;\n                    streak++;\n                }\n                longest = Math.max(longest, streak);\n            }\n        }\n        return longest;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        List<Integer> nums = new ArrayList<>();\n        while (sc.hasNextLine()) {\n            String line = sc.nextLine();\n            if (line.equals(\"\")) break;\n            nums.add(Integer.parseInt(line));\n        }\n        int[] arr = nums.stream().mapToInt(i -> i).toArray();\n        System.out.println(longestConsecutive(arr));\n    }\n}",
+//     "CPP": "#include <iostream>\n#include <unordered_set>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint longestConsecutive(vector<int>& nums) {\n    unordered_set<int> num_set(nums.begin(), nums.end());\n    int longest = 0;\n    for (int num : num_set) {\n        if (!num_set.count(num - 1)) {\n            int current = num;\n            int streak = 1;\n            while (num_set.count(current + 1)) {\n                current++;\n                streak++;\n            }\n            longest = max(longest, streak);\n        }\n    }\n    return longest;\n}\n\nint main() {\n    string line;\n    vector<int> nums;\n    while (getline(cin, line) && !line.empty()) {\n        nums.push_back(stoi(line));\n    }\n    cout << longestConsecutive(nums) << endl;\n    return 0;\n}"
+//   },
+//   "hints": "Put all numbers into a set for O(1) lookups. Only start counting when the previous number doesn't exist."
+// }
