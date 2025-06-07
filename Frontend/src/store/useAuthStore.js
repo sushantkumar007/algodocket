@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
-import toast from "react-hot-toast";
 
 export const useAuthStore = create((set) => ({
   authUser: null,
@@ -12,11 +11,8 @@ export const useAuthStore = create((set) => ({
     set({ isCheckingAuth: true });
     try {
       const res = await axiosInstance.get("/users/me");
-      console.log("checkauth response", res.data);
-
       set({ authUser: res.data.data.user });
     } catch (error) {
-      console.log("❌ Error checking auth:", error);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
@@ -24,33 +20,24 @@ export const useAuthStore = create((set) => ({
   },
 
   signup: async (data) => {
-    set({ isSigninUp: true });
+    set({ isSigninUp: true, error: null });
     try {
       const res = await axiosInstance.post("/users/register", data);
-
       set({ authUser: res.data.data.user });
-
-      toast.success(res.data.message);
     } catch (error) {
-      console.log("Error signing up", error);
-      toast.error("Error signing up");
+      throw new Error(error.response.data.message)
     } finally {
       set({ isSigninUp: false });
     }
   },
 
   login: async (data) => {
-    set({ isLoggingIn: true });
+    set({ isLoggingIn: true, error: null });
     try {
       const res = await axiosInstance.post("/users/login", data);
-
       set({ authUser: res.data.data.user });
-
-      console.log("login complete")
-      toast.success(res.data.message);
     } catch (error) {
-      console.log("Error logging in", error);
-      toast.error("Error logging in");
+      throw new Error(error.response.data.message)
     } finally {
       set({ isLoggingIn: false });
     }
@@ -60,11 +47,52 @@ export const useAuthStore = create((set) => ({
     try {
       await axiosInstance.get("/users/logout");
       set({ authUser: null });
-
-      toast.success("Logout successful");
     } catch (error) {
-      console.log("Error logging out", error);
-      toast.error("Error logging out");
+
     }
   },
+
+  verifyEmail: async (token) => {
+    try {
+      const res = await axiosInstance.get(`/users/verify/${token}`)
+      const data = res.data
+      console.log("useAuthStore :: verifyEmail :: ", res)
+      console.log("useAuthStore :: verifyEmail :: ", data)
+      return data
+    } catch (error) {
+      console.log("useAuthStore :: verifyEmail :: error", error)
+      throw new Error(error.response.data.message)
+    }
+  },
+
+  requestVerificaion: async (data) => {
+    try {
+      return await axiosInstance.post("users/request-verificaion", data)
+    } catch (error) {
+      throw new Error(error.response.data.message)
+    }
+  },
+
+  resetPasswordRequest: async (data) => {
+    try {
+      return await axiosInstance.post("/reset-password-request", data)
+    } catch (error) {
+      throw new Error(error.response.data.message)
+    }
+  },
+  resetPassword: async (data) => {
+    try {
+      return await axiosInstance.post(`/reset-password/${data.token}`, data)
+    } catch (error) {
+      throw new Error(error.response.data.message)
+    }
+  },
+
+  updatePassword: async (data) => {
+    try {
+      return await axiosInstance.post("/update-password", data)
+    } catch (error) {
+      throw new Error(error.response.data.message)
+    }
+  }
 }));
