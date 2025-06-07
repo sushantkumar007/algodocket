@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import Container from "../components/Container";
 import Features from "../components/Features";
-import Hero from "../components/Hero";
-import Counts from "../components/Counts";
+import Hero from "../components/Hero"; 
 import Footer from "../components/Footer";
 import { useProblemStore } from "../store/useProblemStore";
 import { useAuthStore } from "../store/useAuthStore";
