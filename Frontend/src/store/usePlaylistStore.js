@@ -11,21 +11,15 @@ export const usePlaylistStore = create((set, get) => ({
   createPlaylist: async (playlistData) => {
     try {
       set({ isLoading: true });
-      const response = await axiosInstance.post(
-        "/playlist/create-playlist",
-        playlistData
-      );
+      const response = await axiosInstance.post("/playlist/create-playlist", playlistData);
 
       set((state) => ({
         playlists: [...state.playlists, response.data.data.playlist],
       }));
 
-      toast.success("Playlist created successfully");
       return response.data.data.playlist;
     } catch (error) {
-      console.error("Error creating playlist:", error);
-      toast.error(error.response?.data?.error || "Failed to create playlist");
-      throw error;
+      set({ error });
     } finally {
       set({ isLoading: false });
     }
@@ -37,8 +31,7 @@ export const usePlaylistStore = create((set, get) => ({
       const response = await axiosInstance.get("/playlist");
       set({ playlists: response.data.data.playlists });
     } catch (error) {
-      console.error("Error fetching playlists:", error);
-      toast.error("Failed to fetch playlists");
+      set({ error })
     } finally {
       set({ isLoading: false });
     }
@@ -50,8 +43,7 @@ export const usePlaylistStore = create((set, get) => ({
       const response = await axiosInstance.get(`/playlist/${playlistId}`);
       set({ currentPlaylist: response.data.data.playlist });
     } catch (error) {
-      console.error("Error fetching playlist details:", error);
-      toast.error("Failed to fetch playlist details");
+      set({ error })
     } finally {
       set({ isLoading: false });
     }
@@ -60,19 +52,13 @@ export const usePlaylistStore = create((set, get) => ({
   addProblemToPlaylist: async (playlistId, problemIds) => {
     try {
       set({ isLoading: true });
-      await axiosInstance.post(`/playlist/${playlistId}/add-problem`, {
-        problemIds,
-      });
+      await axiosInstance.post(`/playlist/${playlistId}/add-problem`, { problemIds });
 
-      toast.success("Problem added to playlist");
-
-      // Refresh the playlist details
       if (get().currentPlaylist?.id === playlistId) {
         await get().getPlaylistDetails(playlistId);
       }
     } catch (error) {
-      console.error("Error adding problem to playlist:", error);
-      toast.error("Failed to add problem to playlist");
+      set({ error })
     } finally {
       set({ isLoading: false });
     }
@@ -92,7 +78,6 @@ export const usePlaylistStore = create((set, get) => ({
         await get().getPlaylistDetails(playlistId);
       }
     } catch (error) {
-      console.error("Error removing problem from playlist:", error);
       toast.error("Failed to remove problem from playlist");
     } finally {
       set({ isLoading: false });
@@ -110,7 +95,6 @@ export const usePlaylistStore = create((set, get) => ({
 
       toast.success("Playlist deleted successfully");
     } catch (error) {
-      console.error("Error deleting playlist:", error);
       toast.error("Failed to delete playlist");
     } finally {
       set({ isLoading: false });
